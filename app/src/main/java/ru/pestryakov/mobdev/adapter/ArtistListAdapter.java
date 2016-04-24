@@ -41,8 +41,8 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
       if (!genres.isEmpty()) {genres += ", ";}
       genres += genre;
     }
-    String info = "albums: " + artist.getAlbums() + ", tracks: " + artist.getTracks();
-    holder.info.setText(info);
+    String short_info = "albums: " + artist.getAlbums() + ", tracks: " + artist.getTracks();
+    holder.short_info.setText(short_info);
     holder.genres.setText(genres);
     Picasso.with(context).load(url).into(holder.cover);
     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +64,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
     private View itemView;
     private TextView genres;
     private TextView name;
-    private TextView info;
+    private TextView short_info;
     private ImageView cover;
 
     public ViewHolder(View itemView) {
@@ -72,8 +72,8 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
       this.itemView = itemView;
       name = (TextView) itemView.findViewById(R.id.name);
       genres = (TextView) itemView.findViewById(R.id.genres);
-      info = (TextView) itemView.findViewById(R.id.info);
-      cover = (ImageView) itemView.findViewById(R.id.cover);
+      short_info = (TextView) itemView.findViewById(R.id.short_info);
+      cover = (ImageView) itemView.findViewById(R.id.cover_small);
     }
   }
 }

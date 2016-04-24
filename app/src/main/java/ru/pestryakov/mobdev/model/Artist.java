@@ -52,7 +52,7 @@ public class Artist implements Serializable {
     return description;
   }
   public void setDescription(String description) {
-    this.description = description;
+    this.description = description.substring(0, 1).toUpperCase() + description.substring(1);
   }
   public Cover getCover() {
     return cover;

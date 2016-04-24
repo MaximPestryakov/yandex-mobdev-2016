@@ -1,4 +1,7 @@
 <resources>
   <string name="app_name">Mobdev</string>
-  <string name="artists">Исполнители</string>
+  <string name="artists">Artists</string>
+  <string name="internet_error">Internet error</string>
+  <string name="retry">Retry</string>
+  <string name="description">Description</string>
 </resources>
