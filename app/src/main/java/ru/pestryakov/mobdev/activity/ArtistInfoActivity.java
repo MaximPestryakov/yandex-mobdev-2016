@@ -1,10 +1,12 @@
 package ru.pestryakov.mobdev.activity;
 
+import android.graphics.Color;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +33,9 @@ public class ArtistInfoActivity extends AppCompatActivity {
     toolbar = (Toolbar) findViewById(R.id.artist_toolbar);
     toolbar.setTitle(artist.getName());
     setTitle(artist.getName());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      getWindow().setStatusBarColor(Color.TRANSPARENT);
+    }
     description = (TextView) findViewById(R.id.description);
     description.setText(artist.getDescription());
     link = (TextView) findViewById(R.id.link);
@@ -49,6 +54,9 @@ public class ArtistInfoActivity extends AppCompatActivity {
     loadCover();
   }
   private void loadCover() {
+    Point size = new Point();
+    getWindowManager().getDefaultDisplay().getSize(size);
+    cover.setMaxHeight(size.x);
     Picasso.with(this).load(artist.getCover().getBig()).into(cover, new Callback() {
       @Override
       public void onSuccess() {}

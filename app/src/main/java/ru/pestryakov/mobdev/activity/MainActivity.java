@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -22,12 +21,16 @@ import com.owlike.genson.Genson;
 import ru.pestryakov.mobdev.R;
 import ru.pestryakov.mobdev.adapter.ArtistListAdapter;
 import ru.pestryakov.mobdev.model.Artist;
+import ru.pestryakov.mobdev.util.DiskCache;
 import ru.pestryakov.mobdev.util.Utf8StringRequest;
 
 public class MainActivity extends AppCompatActivity {
+  public final String URL = "http://download.cdn.yandex.net/mobilization-2016/artists.json";
   private Toolbar toolbar;
   private SwipeRefreshLayout swipeRefresh;
   private LinearLayout internetError;
+  private DiskCache cache;
+  private Genson genson;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     toolbar = (Toolbar) findViewById(R.id.main_toolbar);
     setSupportActionBar(toolbar);
+    cache = new DiskCache(this);
+    genson = new Genson();
     internetError = (LinearLayout) findViewById(R.id.internet_error);
     swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
     swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -53,32 +58,40 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void makeRequest() {
-    swipeRefresh.setVisibility(View.VISIBLE);
     swipeRefresh.setRefreshing(true);
+    swipeRefresh.setVisibility(View.VISIBLE);
     internetError.setVisibility(View.INVISIBLE);
+    final String cachedData = cache.get(URL);
+    if (cachedData != null) {
+      Artist[] artists = genson.deserialize(cachedData, Artist[].class);
+      initializeAdapter(artists);
+    }
     RequestQueue queue = Volley.newRequestQueue(this);
-    String url = "http://download.cdn.yandex.net/mobilization-2016/artists.json";
     StringRequest request =
-        new Utf8StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+        new Utf8StringRequest(Request.Method.GET, URL, new Response.Listener<String>() {
           @Override
           public void onResponse(String response) {
-            Genson genson = new Genson();
+            swipeRefresh.setRefreshing(false);
+            if (response.equals(cachedData))
+              return;
+            cache.put(URL, response);
             Artist[] artists = genson.deserialize(response, Artist[].class);
             initializeAdapter(artists);
-            swipeRefresh.setRefreshing(false);
           }
         }, new Response.ErrorListener() {
           @Override
           public void onErrorResponse(VolleyError error) {
             swipeRefresh.setRefreshing(false);
-            swipeRefresh.setVisibility(View.INVISIBLE);
-            internetError.setVisibility(View.VISIBLE);
             Snackbar.make(findViewById(R.id.main_coordinator_layout), R.string.internet_error, Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, new View.OnClickListener() {
               @Override
               public void onClick(View view) {
                 makeRequest();
               }
             }).show();
+            if (cachedData != null)
+              return;
+            swipeRefresh.setVisibility(View.INVISIBLE);
+            internetError.setVisibility(View.VISIBLE);
           }
         });
     queue.add(request);

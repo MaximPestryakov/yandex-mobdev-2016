@@ -27,7 +27,8 @@
       <ImageView
           android:id="@+id/cover_big"
           android:layout_width="match_parent"
-          android:layout_height="1000px"
+          android:layout_height="wrap_content"
+          android:fitsSystemWindows="true"
           android:scaleType="centerCrop"
           app:layout_collapseMode="parallax"/>
 
